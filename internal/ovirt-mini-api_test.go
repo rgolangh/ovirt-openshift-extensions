@@ -142,6 +142,26 @@ var _ = Describe("Authentication tests", func() {
 			It("catches it and reauthenticate", func() {})
 		})
 	})
+
+	Context("Error handling", func() {
+		Context("400 errors", func() {
+			Context("when error 400 bad request", func() {
+
+				api := CreateMockOvirtClient(func(writer http.ResponseWriter, request *http.Request) {
+					writer.WriteHeader(http.StatusBadRequest)
+					writer.Write([]byte("<html><body>bad request</body></html>"))
+				})
+				err := api.Authenticate()
+
+				It("returns with error", func() {
+					Expect(err).Should(HaveOccurred())
+				})
+				It("has the body shown", func() {
+					Expect(err.Error()).To(Equal("fix this"))
+				})
+			})
+		})
+	})
 })
 
 func TestFailedFetchToken_move302(t *testing.T) {
